@@ -35,15 +35,13 @@ class LocAgent:
         # previous action
         self.prev_action = None
 
-        self.P = None
+        self.P = np.ones([len(self.locations),4], dtype=np.float)
 
     def __call__(self, percept):
         # update posterior
         # TODO PUT YOUR CODE HERE
 
-
         # -----------------------
-
         action = 'forward'
         # TODO CHANGE THIS HEURISTICS TO SPEED UP CONVERGENCE
         # if there is a wall ahead then lets turn
@@ -61,11 +59,11 @@ class LocAgent:
     def getPosterior(self):
         # directions in order 'N', 'E', 'S', 'W'
         P_arr = np.zeros([self.size, self.size, 4], dtype=np.float)
-
         # put probabilities in the array
         # TODO PUT YOUR CODE HERE
-
-
+        for i in range(0,4):
+            for idx, loc in enumerate(self.locations):
+                P_arr[loc[0], loc[1],i] = self.P[idx,i]
         # -----------------------
 
         return P_arr
