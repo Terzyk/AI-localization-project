@@ -31,15 +31,22 @@ class LocAgent:
         self.loc_to_idx = {loc: idx for idx, loc in enumerate(self.locations)}
         self.eps_perc = eps_perc
         self.eps_move = eps_move
+#self states, klucz lokacja i orientacja, a wartoscia jest index krotka
+
 
         # previous action
         self.prev_action = None
 
-        self.P = np.ones([len(self.locations),4], dtype=np.float)
-
+        #self.P = np.ones([len(self.locations),4], dtype=np.float)
+        self.P = np.ones([len(self.locations)*4],dtype=np.float)
+        print(self.P.shape)
     def __call__(self, percept):
         # update posterior
         # TODO PUT YOUR CODE HERE
+        # macierz T
+        T=np.zeros
+
+
 
         # -----------------------
         action = 'forward'
@@ -61,9 +68,10 @@ class LocAgent:
         P_arr = np.zeros([self.size, self.size, 4], dtype=np.float)
         # put probabilities in the array
         # TODO PUT YOUR CODE HERE
-        for i in range(0,4):
-            for idx, loc in enumerate(self.locations):
-                P_arr[loc[0], loc[1],i] = self.P[idx,i]
+        # commented for later use
+        #for i in range(0,4):
+            #for idx, loc in enumerate(self.locations):
+                #P_arr[loc[0], loc[1],i] = self.P[idx,i]
         # -----------------------
 
         return P_arr
