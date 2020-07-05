@@ -30,6 +30,12 @@ class LocAgent:
         self.locations = list({*locations(self.size)}.difference(self.walls))
         # dictionary from location to its index in the list
         self.loc_to_idx = {loc: idx for idx, loc in enumerate(self.locations)}
+
+        possible_dirs="NESW"
+
+
+        print(self.state_dict)
+        #print(self.state_dict)
         self.eps_perc = eps_perc
         self.eps_move = eps_move
 #self states, klucz lokacja i orientacja, a wartoscia jest index krotka
@@ -47,31 +53,40 @@ class LocAgent:
         T=np.zeros([len(self.locations)*4,len(self.locations)*4],dtype=np.float)
         #if self.prev_action=="forward":
         neighbours=['N','E','S','W']
-        for idx, loc in enumerate(self.locations):
-            for i in neighbours:
-                next_loc = nextLoc(loc,i)
-                #print(next_loc)
-                if legalLoc(next_loc,self.size) and (next_loc not in self.walls):
-                    next_idx = self.loc_to_idx[next_loc]
-                    if i =="N":
+        for i in neighbours:
+            if self.prev_action == "forward":
+                for idx, loc in enumerate(self.locations):
+                    next_loc = nextLoc(loc,i)
+                    if legalLoc(next_loc,self.size) and (next_loc not in self.walls):
+                        next_idx = self.loc_to_idx[next_loc]
                         T[idx,next_idx]=1.0-self.eps_move
                         T[idx,idx]=self.eps_move
-                    if i=="E":
-                        T[idx, next_idx+42] = 1.0 - self.eps_move
-                        T[idx, idx] = self.eps_move
-                    if i=="S":
-                        T[idx, next_idx+84] = 1.0 - self.eps_move
-                        T[idx, idx] = self.eps_move
-                    if i=="W":
-                        T[idx, next_idx+126] = 1.0 - self.eps_move
-                        T[idx, idx] = self.eps_move
-                else:
-                    T[idx,idx]=1.0
-        
+                    else:
+                        T[idx,idx]=1.0
+            if self.prev_action == "turnleft":
+                for idx, loc in enumerate(self.locations):
+                    next_loc = nextLoc(loc,i)
+                    if legalLoc(next_loc,self.size) and (next_loc not in self.walls):
+                        next_idx = self.loc_to_idx[next_loc]
+                        T[idx,next_idx]=1.0-self.eps_move
+                        T[idx,idx]=self.eps_move
+                    else:
+                        T[idx,idx]=1.0
+            if self.prev_action == "turnright":
+                for idx, loc in enumerate(self.locations):
+                    next_loc = nextLoc(loc,i)
+                    if legalLoc(next_loc,self.size) and (next_loc not in self.walls):
+                        next_idx = self.loc_to_idx[next_loc]
+                        T[idx,next_idx]=1.0-self.eps_move
+                        T[idx,idx]=self.eps_move
+                    else:
+                        T[idx,idx]=1.0
+
+
         #else: # for turning
             #for idx,loc in enumerate(self.locations):
                 #T[idx,idx]=1.0
-        print(T)
+        #print(T)
 
         # -----------------------
         action = 'forward'
