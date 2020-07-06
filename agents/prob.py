@@ -34,6 +34,7 @@ class LocAgent:
         self.possible_dirs="NESW"
 
         self.list_of_states=list((loc[0],loc[1],direction) for loc in self.locations for direction in self.possible_dirs)
+
         print(self.list_of_states)
         self.state_dict = {pos: idx for idx,pos in enumerate(self.list_of_states)}
         print(self.state_dict)
@@ -49,7 +50,7 @@ class LocAgent:
         # update posterior
         # TODO PUT YOUR CODE HERE
         # macierz T (168x168)
-        T=np.zeros([len(self.locations)*4,len(self.locations)*4],dtype=np.float)
+        T=np.ones([len(self.locations)*4,len(self.locations)*4],dtype=np.float)
         if self.prev_action =="forward":
             for idx, loc in enumerate(self.list_of_states):
                 next_loc = nextLoc((loc[0],loc[1]),loc[2])
@@ -85,8 +86,68 @@ class LocAgent:
                 else:
                     T[idx,idx]=1.0
 
-        print(T)
+        #print(T)
 
+        O = np.zeros([len(self.locations) * 4], dtype=np.float)
+        for idx, loc in enumerate(self.list_of_states):
+            percept2 = []
+            if loc[2] == "N":
+                if "right" in percept:
+                    percept2.append('E')
+                if "left" in percept:
+                    percept2.append('W')
+                if "fwd" in percept:
+                    percept2.append('N')
+                if "bckwd" in percept:
+                    percept2.append('S')
+            if loc[2] == "S":
+                if "right" in percept:
+                    percept2.append('E')
+                if "left" in percept:
+                    percept2.append('W')
+                if "fwd" in percept:
+                    percept2.append('S')
+                if "bckwd" in percept:
+                    percept2.append('N')
+            if loc[2] == "W":
+                if "right" in percept:
+                    percept2.append('N')
+                if "left" in percept:
+                    percept2.append('S')
+                if "fwd" in percept:
+                    percept2.append('W')
+                if "bckwd" in percept:
+                    percept2.append('E')
+            if loc[2] == "E":
+                if "right" in percept:
+                    percept2.append('S')
+                if "left" in percept:
+                    percept2.append('N')
+                if "fwd" in percept:
+                    percept2.append('E')
+                if "bckwd" in percept:
+                    percept2.append('W')
+            prob = 1.0
+            #print(percept2)
+            #print("My percept in robot coordinates is: " + str(percept))
+            #print("My percept in world coordinates is: " + str(percept2))
+            #print("Position: " + str(loc))
+            #print("#####")
+            for d in ['N','E','S','W']:
+                next_loc=nextLoc((loc[0],loc[1]),d)
+                obstacle = (not legalLoc(next_loc,self.size)) or (next_loc in self.walls)
+                if obstacle == (d in percept2):
+                    prob = prob * (1-self.eps_perc)
+                else:
+                    prob = prob * self.eps_perc
+                #print(str(prob)+" and loc is: "+str(loc)+" and there was obstacle? "+str(obstacle)+" and was there d in percept2? "+str((d in percept2)))
+            O[idx]=prob
+        print(O)
+
+
+
+
+        #print(self.P)
         # -----------------------
         action = 'forward'
         # TODO CHANGE THIS HEURISTICS TO SPEED UP CONVERGENCE
@@ -104,15 +165,14 @@ class LocAgent:
 
     def getPosterior(self):
         # directions in order 'N', 'E', 'S', 'W'
-        P_arr = np.zeros([self.size, self.size, 4], dtype=np.float)
+
         # put probabilities in the array
         # TODO PUT YOUR CODE HERE
-        # commented for later use
-        #for i in range(0,4):
-            #for idx, loc in enumerate(self.locations):
-                #P_arr[loc[0], loc[1],i] = self.P[idx,i]
-        # -----------------------
+        P_arr = np.zeros([self.size, self.size, 4], dtype=np.float)
 
+
+        # -----------------------
+        #print(P_arr)
         return P_arr
 
     def forward(self, cur_loc, cur_dir):
