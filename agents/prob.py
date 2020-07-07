@@ -34,7 +34,6 @@ class LocAgent:
         self.possible_dirs="NESW"
 
         self.list_of_states=list((loc[0],loc[1],direction) for loc in self.locations for direction in self.possible_dirs)
-
         print(self.list_of_states)
         self.state_dict = {pos: idx for idx,pos in enumerate(self.list_of_states)}
         print(self.state_dict)
@@ -50,7 +49,7 @@ class LocAgent:
         # update posterior
         # TODO PUT YOUR CODE HERE
         # macierz T (168x168)
-        T=np.ones([len(self.locations)*4,len(self.locations)*4],dtype=np.float)
+        T=np.identity(len(self.locations)*4,dtype=np.float) 
         if self.prev_action =="forward":
             for idx, loc in enumerate(self.list_of_states):
                 next_loc = nextLoc((loc[0],loc[1]),loc[2])
@@ -68,9 +67,9 @@ class LocAgent:
 
         if self.prev_action =="turnleft":
             for idx, loc in enumerate(self.list_of_states):
-                next_loc = nextLoc((loc[0],loc[1]),loc[2])
-                if legalLoc(next_loc,self.size) and (next_loc not in self.walls):
-                    next_idx = self.state_dict[(next_loc[0],next_loc[1],loc[2])]
+                next_loc = leftTurn(loc[2])
+                if legalLoc((loc[0],loc[1]),self.size) and ((loc[0],loc[1]) not in self.walls):
+                    next_idx = self.state_dict[(loc[0],loc[1],next_loc)]
                     T[idx,next_idx]=1.0-self.eps_move
                     T[idx,idx]=self.eps_move
                 else:
@@ -78,55 +77,55 @@ class LocAgent:
 
         if self.prev_action =="turnright":
             for idx, loc in enumerate(self.list_of_states):
-                next_loc = nextLoc((loc[0],loc[1]),loc[2])
-                if legalLoc(next_loc,self.size) and (next_loc not in self.walls):
-                    next_idx = self.state_dict[(next_loc[0],next_loc[1],loc[2])]
+                next_loc = rightTurn(loc[2])
+                if legalLoc((loc[0],loc[1]),self.size) and ((loc[0],loc[1]) not in self.walls):
+                    next_idx = self.state_dict[(loc[0],loc[1],next_loc)]
                     T[idx,next_idx]=1.0-self.eps_move
                     T[idx,idx]=self.eps_move
                 else:
                     T[idx,idx]=1.0
 
         #print(T)
-
         O = np.zeros([len(self.locations) * 4], dtype=np.float)
         for idx, loc in enumerate(self.list_of_states):
             percept2 = []
-            if loc[2] == "N":
-                if "right" in percept:
-                    percept2.append('E')
-                if "left" in percept:
-                    percept2.append('W')
-                if "fwd" in percept:
-                    percept2.append('N')
-                if "bckwd" in percept:
-                    percept2.append('S')
-            if loc[2] == "S":
-                if "right" in percept:
-                    percept2.append('E')
-                if "left" in percept:
-                    percept2.append('W')
-                if "fwd" in percept:
-                    percept2.append('S')
-                if "bckwd" in percept:
-                    percept2.append('N')
-            if loc[2] == "W":
-                if "right" in percept:
-                    percept2.append('N')
-                if "left" in percept:
-                    percept2.append('S')
-                if "fwd" in percept:
-                    percept2.append('W')
-                if "bckwd" in percept:
-                    percept2.append('E')
-            if loc[2] == "E":
-                if "right" in percept:
-                    percept2.append('S')
-                if "left" in percept:
-                    percept2.append('N')
-                if "fwd" in percept:
-                    percept2.append('E')
-                if "bckwd" in percept:
-                    percept2.append('W')
+            for x in range(0,len(percept)):
+                if loc[2] == "N":
+                    if percept[x]=="fwd":
+                        percept2.append('N')
+                    if percept[x]=="right":
+                        percept2.append('E')
+                    if percept[x]=="bckwd":
+                        percept2.append('S')
+                    if percept[x]=="left":
+                        percept2.append('W')
+                if loc[2] == "S":
+                    if percept[x]=="bckwd":
+                        percept2.append('N')
+                    if percept[x]=="left":
+                        percept2.append('E')
+                    if percept[x]=="fwd":
+                        percept2.append('S')
+                    if percept[x]=="right":
+                        percept2.append('W')
+                if loc[2] == "W":
+                    if percept[x]=="right":
+                        percept2.append('N')
+                    if percept[x]=="bckwd":
+                        percept2.append('E')
+                    if percept[x]=="left":
+                        percept2.append('S')
+                    if percept[x]=="fwd":
+                        percept2.append('W')
+                if loc[2] == "E":
+                    if percept[x]=="left":
+                        percept2.append('N')
+                    if percept[x]=="fwd":
+                        percept2.append('E')
+                    if percept[x]=="right":
+                        percept2.append('S')
+                    if percept[x]=="bckwd":
+                        percept2.append('W')
             prob = 1.0
             #print(percept2)
             #print("My percept in robot coordinates is: " + str(percept))
@@ -142,9 +141,12 @@ class LocAgent:
                     prob = prob * self.eps_perc
                 #print(str(prob)+" and loc is: "+str(loc)+" and there was obstacle? "+str(obstacle)+" and was there d in percept2? "+str((d in percept2)))
             O[idx]=prob
-        print(O)
+        #print(O)
 
 
+        self.P = T.transpose() @ self.P
+        self.P=O*self.P
+        self.P/=np.sum(self.P)
 
 
         #print(self.P)
@@ -169,9 +171,15 @@ class LocAgent:
         # put probabilities in the array
         # TODO PUT YOUR CODE HERE
         P_arr = np.zeros([self.size, self.size, 4], dtype=np.float)
-
-
-        # -----------------------
+        for idx, loc in enumerate(self.list_of_states):
+            if loc[2] == "N":
+                P_arr[loc[0], loc[1], 0] = self.P[idx]
+            if loc[2] == "E":
+                P_arr[loc[0], loc[1], 1] = self.P[idx]
+            if loc[2] == "S":
+                P_arr[loc[0], loc[1], 2] = self.P[idx]
+            if loc[2] == "W":
+                P_arr[loc[0], loc[1], 3] = self.P[idx]
         #print(P_arr)
         return P_arr
 
