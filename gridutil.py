@@ -18,6 +18,19 @@ def nextLoc(loc, d):
     dx, dy = ORIENTATIONS[d]
     return (x+dx, y+dy)
 
+def nextLoc2(loc, d):
+    x,y = loc
+    dx, dy = ORIENTATIONS[d]
+    if d == 'N':
+        return (x + dx, y + dy+2)
+    if d == 'E':
+        return (x + dx+2, y + dy)
+    if d == 'S':
+        return (x + dx, y + dy-2)
+    if d == 'W':
+        return (x + dx-2, y + dy)
+
+
 def legalLoc(loc, n):
     x,y = loc
     return 0<=x<n and 0<=y<n

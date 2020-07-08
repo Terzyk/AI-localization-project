@@ -42,10 +42,11 @@ class LocAgent:
         self.eps_move = eps_move
         # previous action
         self.prev_action = None
-
+        self.tt=0
         #self.P = np.ones([len(self.locations),4], dtype=np.float)
         self.P = np.ones([len(self.locations)*4],dtype=np.float)
     def __call__(self, percept):
+
         # update posterior
         # TODO PUT YOUR CODE HERE
         # macierz T (168x168)
@@ -148,9 +149,33 @@ class LocAgent:
         self.P=O*self.P
         self.P/=np.sum(self.P)
 
+        #print(self.P)
+        best_loc_tab=[]
+        count = 0
+        for i in self.P:
+            if i > count:
+                count = i
+        for x in range(0,len(self.P)):
+            if self.P[x] == count:
+                for n, a in self.state_dict.items():
+                    if a == x:
+                        best_loc_tab.append(n)
+        print(best_loc_tab) # -> zawiera stany w ktorych jest taka sama wartosc prawdopodobienstwa
+
+        if self.tt==0:
+            for idx, loc in enumerate(best_loc_tab):
+                next_wall_loc=nextLoc2((loc[0],loc[1]),loc[2])
+                if not(legalLoc((next_wall_loc[0], next_wall_loc[1]), self.size) and ((next_wall_loc[0], next_wall_loc[1]) not in self.walls)):
+                    #pass
+                    self.P[self.state_dict[loc]] = 0
+        self.tt=self.tt+1
+
 
         my_entropy = entropy(self.P)
         print("my entropy is: "+str(my_entropy))
+
+
+
         #print(self.P)
         # -----------------------
         action = 'forward'
