@@ -6,7 +6,7 @@ import sys
 import numpy as np
 np.set_printoptions(threshold=sys.maxsize)
 from gridutil import *
-
+from scipy.stats import entropy
 best_turn = {('N', 'E'): 'turnright',
              ('N', 'S'): 'turnright',
              ('N', 'W'): 'turnleft',
@@ -149,6 +149,8 @@ class LocAgent:
         self.P/=np.sum(self.P)
 
 
+        my_entropy = entropy(self.P)
+        print("my entropy is: "+str(my_entropy))
         #print(self.P)
         # -----------------------
         action = 'forward'
