@@ -46,7 +46,6 @@ class LocAgent:
         self.P = np.ones([len(self.locations)*4],dtype=np.float)
         self.get_out_of_corner = []
     def __call__(self, percept):
-
         # update posterior
         # TODO PUT YOUR CODE HERE
         # macierz T (168x168)
