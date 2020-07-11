@@ -50,7 +50,7 @@ class LocAgent:
         # update posterior
         # TODO PUT YOUR CODE HERE
         # macierz T (168x168)
-        T=np.identity(len(self.locations)*4,dtype=np.float) 
+        T=np.identity(len(self.locations)*4,dtype=np.float)
         if self.prev_action =="forward":
             for idx, loc in enumerate(self.list_of_states):
                 next_loc = nextLoc((loc[0],loc[1]),loc[2])
@@ -148,7 +148,6 @@ class LocAgent:
         self.P = T.transpose() @ self.P
         self.P=O*self.P
         self.P/=np.sum(self.P)
-
         best_loc_tab=[]
         count = 0
         for i in self.P:
