@@ -34,9 +34,8 @@ class LocAgent:
         self.possible_dirs="NESW"
 
         self.list_of_states=list((loc[0],loc[1],direction) for loc in self.locations for direction in self.possible_dirs)
-        print(self.list_of_states)
         self.state_dict = {pos: idx for idx,pos in enumerate(self.list_of_states)}
-        print(self.state_dict)
+
 
         self.eps_perc = eps_perc
         self.eps_move = eps_move
@@ -150,7 +149,6 @@ class LocAgent:
         self.P=O*self.P
         self.P/=np.sum(self.P)
 
-        #print(self.P)
         best_loc_tab=[]
         count = 0
         for i in self.P:
@@ -164,126 +162,97 @@ class LocAgent:
         #print(best_loc_tab) # -> zawiera stany w ktorych jest taka sama wartosc prawdopodobienstwa
 
 
-        # 1) proba
-        #if self.tt==0:
-            #for idx, loc in enumerate(best_loc_tab):
-                #next_wall_loc=nextLoc2((loc[0],loc[1]),loc[2])
-               # if not(legalLoc((next_wall_loc[0], next_wall_loc[1]), self.size) and ((next_wall_loc[0], next_wall_loc[1]) not in self.walls)):
-                    #pass
-                    #self.P[self.state_dict[loc]] = 0
-        #self.tt=self.tt+1
-
-        # 2) proba
-        '''
-        actions=['forward','forward','turnright','forward','turnleft']
-        score_idx={}
-        empty_loc=(0,0)
-        action = 'forward'
-        for idx, loc in enumerate(best_loc_tab):
-            nextlocation = loc
-            walls = 0
-            score = 0
-            visited = []
-            for act in actions:
-                action=act
-                if act == 'forward':
-                    nextlocation = (nextlocation[0],nextlocation[1]+1)
-                if act =='turnright':
-                    pass
-                if act =='turnleft':
-                    pass
-                print(nextlocation)
-                print(nextlocation in self.walls)
-                visited.append(nextlocation)
-                if legalLoc((nextlocation[0], nextlocation[1]), self.size) and ((nextlocation[0], nextlocation[1]) in self.walls):
-                    print("WALL")
-                    walls=walls+1
-            for i in visited:
-                if i==empty_loc:
-                    score=score-1
-                else:
-                    score=score+1
-                empty_loc=i
-            print(visited)
-            score=score+walls
-            print(score)
-            score_idx[idx]=score
-        sum=100
-        nn=0
-        for n, a in score_idx.items():
-            if sum > a:
-                sum=a
-                nn=n
-        print(sum)
-        print(nn)
-        print(score_idx)
-        print(self.state_dict)
-        xx = best_loc_tab[nn]
-        self.P[self.state_dict[xx]] = 0
-        '''
-
-        # 3) proba - simple method - just not to get stuck in the corners
-
-        print(len(self.get_out_of_corner))
-        print(len(percept))
-        if len(self.get_out_of_corner)==0:
-            if 'fwd' in percept and 'right' in percept:
-                action = 'turnleft'
-            if 'fwd' in percept and 'left' in percept:
-                action = 'turnright'
-            if 'right' in percept and 'left' in percept:
-                action = 'forward'
-            if 'bckwd' in percept and 'fwd' in percept:
-                action = 'turnleft'
-            if 'bckwd' in percept and len(percept)==1:
-                action = 'forward'
-            if 'fwd' in percept and len(percept)==1:
-                action = 'turnright'
-            if 'right' in percept and len(percept)==1:
-                action = 'forward'
-            if 'left' in percept and len(percept)==1:
-                action = 'forward'
-            if 'right' in percept and 'bckwd' in percept:
-                action = 'forward'
-            if 'left' in percept and 'bckwd' in percept:
-                action = 'forward'
-            if len(percept)==0:
-                action = 'forward'
-            #if len(percept)>=4:
-                #print("HALO")
-                #self.get_out_of_corner=['forward','turnleft','turnleft','turnleft']
-
-                #if (percept==['fwd','left'] or percept==['fwd','left']) and 'bump' in percept:
-                #    self.get_out_of_corner=['forward','turnright','turnright']
-                #if (percept==['fwd','right'] or percept==['fwd','right']) and 'bump' in percept:
-                #    self.get_out_of_corner = ['forward', 'turnleft', 'turnleft']
-
-            if 'bump' in percept:
-                action='turnleft'
-            # sprobowac cos dodac jesli chodzi o poruszanie sie w tych samych miejscach
-            my_entropy = entropy(self.P)
-            print(percept)
-            print("my entropy is: " + str(my_entropy))
-            self.prev_action = action
-            return action
-        #else:
-            #self.get_out_of_corner.pop()
-            #if len(self.get_out_of_corner)!=0:
-             #   print("#########################")
-              #  print(self.get_out_of_corner)
-               # self.prev_action = self.get_out_of_corner[-1]
-                #return self.get_out_of_corner[-1]
-            #else:
-             #   return 'forward'
 
 
-
-
-
-        #print(self.P)
-        # -----------------------
-        #action = 'forward'
         # TODO CHANGE THIS HEURISTICS TO SPEED UP CONVERGENCE
+
+                # 1) proba
+                # if self.tt==0:
+                # for idx, loc in enumerate(best_loc_tab):
+                # next_wall_loc=nextLoc2((loc[0],loc[1]),loc[2])
+                # if not(legalLoc((next_wall_loc[0], next_wall_loc[1]), self.size) and ((next_wall_loc[0], next_wall_loc[1]) not in self.walls)):
+                # pass
+                # self.P[self.state_dict[loc]] = 0
+                # self.tt=self.tt+1
+
+                # 2) proba
+                '''
+                actions=['forward','forward','turnright','forward','turnleft']
+                score_idx={}
+                empty_loc=(0,0)
+                action = 'forward'
+                for idx, loc in enumerate(best_loc_tab):
+                    nextlocation = loc
+                    walls = 0
+                    score = 0
+                    visited = []
+                    for act in actions:
+                        action=act
+                        if act == 'forward':
+                            nextlocation = (nextlocation[0],nextlocation[1]+1)
+                        if act =='turnright':
+                            pass
+                        if act =='turnleft':
+                            pass
+                        print(nextlocation)
+                        print(nextlocation in self.walls)
+                        visited.append(nextlocation)
+                        if legalLoc((nextlocation[0], nextlocation[1]), self.size) and ((nextlocation[0], nextlocation[1]) in self.walls):
+                            print("WALL")
+                            walls=walls+1
+                    for i in visited:
+                        if i==empty_loc:
+                            score=score-1
+                        else:
+                            score=score+1
+                        empty_loc=i
+                    print(visited)
+                    score=score+walls
+                    print(score)
+                    score_idx[idx]=score
+                sum=100
+                nn=0
+                for n, a in score_idx.items():
+                    if sum > a:
+                        sum=a
+                        nn=n
+                print(sum)
+                print(nn)
+                print(score_idx)
+                print(self.state_dict)
+                xx = best_loc_tab[nn]
+                self.P[self.state_dict[xx]] = 0
+                '''
+
+                # 3) proba - simple method - just not to get stuck in the corners
+                if 'fwd' in percept and 'right' in percept:
+                    action = 'turnleft'
+                if 'fwd' in percept and 'left' in percept:
+                    action = 'turnright'
+                if 'right' in percept and 'left' in percept:
+                    action = 'forward'
+                if 'bckwd' in percept and 'fwd' in percept:
+                    action = 'turnleft'
+                if 'bckwd' in percept and len(percept) == 1:
+                    action = 'forward'
+                if 'fwd' in percept and len(percept) == 1:
+                    action = 'turnright'
+                if 'right' in percept and len(percept) == 1:
+                    action = 'forward'
+                if 'left' in percept and len(percept) == 1:
+                    action = 'forward'
+                if 'right' in percept and 'bckwd' in percept:
+                    action = 'forward'
+                if 'left' in percept and 'bckwd' in percept:
+                    action = 'forward'
+                if len(percept) == 0:
+                    action = 'forward'
+                if 'bump' in percept:
+                    action = 'turnleft'
+                my_entropy = entropy(self.P)
+                self.prev_action = action
+                return action
+
         # if there is a wall ahead then lets turn
         #if 'fwd' in percept:
             # higher chance of turning left to avoid getting stuck in one location
@@ -291,10 +260,6 @@ class LocAgent:
         #else:
             # prefer moving forward to explore
             #action = np.random.choice(['forward', 'turnleft', 'turnright'], 1, p=[0.8, 0.1, 0.1])
-
-        self.prev_action = action
-
-        return action
 
     def getPosterior(self):
         # directions in order 'N', 'E', 'S', 'W'
